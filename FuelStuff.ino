@@ -121,9 +121,13 @@ void mpgCalc()
       
       dtostrf(distance, 8, 5, distEstBuff);
       dtostrf(shortTermMPG, 8, 5, shortTermMPGBuff);
- //     logData(distEstBuff);
+ //     logData(distEstBuff); //in feet
  //     logData(shortTermMPGBuff);
       
+      strcat(dataBuff, distEstBuff);
+      strcat(dataBuff, ",");
+      strcat(dataBuff, shortTermMPGBuff);
+      strcat(dataBuff, ",");
       //myData.totalIdleTime = myData.totalIdleTime;
       
       //Reset the time used for calculating averages

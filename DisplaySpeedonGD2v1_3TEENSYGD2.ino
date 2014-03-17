@@ -7,8 +7,9 @@
 #include <TinyGPS++.h>
 #include <EEPROM.h>
 #include <GD2.h>
-//#define CS 20 //GPUSel
-//#define SD_SEL 21 //GD2 SD
+#define CS 20 //GPUSel
+#define SD_SEL 21 //GD2 SD
+
 #define BLACK  0x000000
 
 
@@ -23,7 +24,7 @@ SETTINGS
 #define ENABLE_GPS
 #define ENABLE_LOG
 #define ENABLE_OBD
-#define ENABLE_DISPLAY
+//#define ENABLE_DISPLAY
 //#define ENABLE_NET
 
 
@@ -67,7 +68,7 @@ SdFile logFile;
 char tripName[18];
 char logName[18];
 
-char dataBuff[72];
+char dataBuff[72];  //Update to multiple of 512 for improved speed?
 char tempbuf[18];
 char gpsBuf[48];
 //char timeStamp[20];
@@ -191,9 +192,9 @@ int mapVal;
 int iatVal;
 
 void setup() {
-  
+  delay(3000);
   #ifdef ENABLE_DEBUG
-  Serial.begin(9600);
+  Serial.begin(115200);
   #endif  
   
   #ifdef ENABLE_DISPLAY
@@ -223,7 +224,7 @@ void setup() {
   
   #ifdef ENABLE_DEBUG
   Serial.print("SD Card Status: ");
-  Serial.println(myData.sdStatus);
+  Serial.println(vehicleData.sdStatus);
   #endif
 
   vehicleData.powerStatus = obdInit();
@@ -241,15 +242,15 @@ void loop() {
     vehicleStatus();
     memset(dataBuff, 0, 72);
     memset(gpsBuf, 0, 48);  
-  delay(50);
+    delay(50);
   }
   //readGPS(true);
   
 //  logDataBuf();
   //readGPS(false);
   
-  handleData();
-  updateScreen();  
+  //handleData();
+  //updateScreen();  
  // delay(20);  //This delay must be shorter than the transmit delay, is it needed?
   
 }

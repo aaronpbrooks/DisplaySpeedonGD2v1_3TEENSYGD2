@@ -155,6 +155,10 @@ void readPID(int pidIndex)
 
 void vehicleStatus()
 {
+  //Save buffer here?
+  logData(dataBuff);
+  //delay(50); //do I need this delay? or is logData a blocking function?  
+ 
   //check to see if obd is active
   //just check for engine running for now, but add obd status check also
   if (vehicleData.rpmVal > 0) {
