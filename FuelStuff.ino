@@ -62,6 +62,7 @@ void mpgCalc()
     aveMAP = cumMAP / numReadings;
     aveIAT = cumIAT / numReadings;
   /*  
+  //Could change to save only the averaged values instead of all realtime to SD
     #ifdef DEBUG_ENABLE //moved from below
     sprintf(readingsBuff, "%2u", numReadings);
     strcat(readingsBuff,",");
@@ -93,7 +94,7 @@ void mpgCalc()
     airMass = imap / 60 * volEff * engDisp * mMAir / rVal;
     fuelMass = airMass / afRatio;
     fuelVol = fuelMass / gasDensity / convgtolb;    
-      
+    /*  
     #ifdef ENABLE_DEBUG 
     dtostrf(airMass, 8, 2, airMassBuff); 
     dtostrf(fuelMass, 8, 2, fuelMassBuff);    
@@ -106,9 +107,10 @@ void mpgCalc()
     
     //75ms between this log and previous logging event (readingsBuff) - needed?
     dtostrf(fuelMass, 8, 2, fuelMassBuff);
+
  //   logData(fuelMassBuff);
     #endif //moved from above
-    
+     */   
     if (aveSPD > 0) {
       //estimate distance using feet - using miles is too small a number to do accurate float maths with
       float ftPerSec = aveSPD * (5280 / 3600);     

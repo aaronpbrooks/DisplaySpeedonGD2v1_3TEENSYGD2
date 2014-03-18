@@ -1,6 +1,6 @@
 #include <Arduino.h>
 #include <OBD.h>
-//#include <Wire.h>
+#include <Wire.h>
 #include <SdFat.h>
 #include <SPI.h>
 //#include <RTClib.h>
@@ -14,12 +14,21 @@
 
 
 //TODO:
+//- Add readme file in github
 //- Experiment with shortening time between fuel averaging (1.5-2secs?) or change to monitor num readings
+
+
+//3/18 Tests:
+//Change baud on OBD
+//Add GPS
+//Test different buffer sizes
+
+
 
 /*************************************************************************
 SETTINGS
 *************************************************************************/
-#define ENABLE_DEBUG //Serial
+//#define ENABLE_DEBUG //Serial
 //#define ENABLE_FUEL  //Serial
 #define ENABLE_GPS
 #define ENABLE_LOG
@@ -69,8 +78,8 @@ char tripName[18];
 char logName[18];
 
 char dataBuff[72];  //Update to multiple of 512 for improved speed?
-char tempbuf[18];
-char gpsBuf[48];
+char tempbuf[18];   //Could also make much bigger, add carriage return and line feed
+char gpsBuf[48];    //Could also put in flash instead of RAM - look into this
 //char timeStamp[20];
 
 //  RTC_DS1307 RTC;
@@ -192,14 +201,12 @@ int mapVal;
 int iatVal;
 
 void setup() {
-  delay(3000);
+  delay(500);
   #ifdef ENABLE_DEBUG
   Serial.begin(115200);
   #endif  
   
   #ifdef ENABLE_DISPLAY
-  //Serial2.begin(9600); //was 9600
-  //delay(100);
   GD.begin();
   delay(100);
   displaySetup();  
@@ -228,6 +235,9 @@ void setup() {
   #endif
 
   vehicleData.powerStatus = obdInit();
+  
+  if (vehicleData.powerStatus = true) logData("OBD Connection Success");
+  
   fuelStartTime = millis() + 3000;
   //delay(1000);
     
@@ -237,21 +247,20 @@ void loop() {
   
   if(vehicleData.powerStatus == true) { 
     readOBD();
-    //readGPS(false);
+    readGPS(false);
     mpgCalc();
     vehicleStatus();
     memset(dataBuff, 0, 72);
     memset(gpsBuf, 0, 48);  
     delay(50);
   }
-  //readGPS(true);
+  readGPS(true);
   
 //  logDataBuf();
-  //readGPS(false);
+  readGPS(false);
   
   //handleData();
   //updateScreen();  
- // delay(20);  //This delay must be shorter than the transmit delay, is it needed?
   
 }
 

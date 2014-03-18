@@ -10,7 +10,7 @@ bool obdInit() {
     #endif
   }
   //return true should be in above loop
-  if (attemptCount >= 2) return false;
+  if (attemptCount >= 5) return false;
   else return true;
 }
 
