@@ -104,7 +104,7 @@ bool initSD()
     }
   logData(titleBuff);
   
-  #ifdef DEUG_ENABLE 
+  #ifdef DEBUG_ENABLE 
   Serial.println(titleBuff);
   #endif
   

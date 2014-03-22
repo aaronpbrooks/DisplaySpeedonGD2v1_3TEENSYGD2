@@ -2,66 +2,105 @@
 
 void readGPS(boolean saveData)
 { 
-  unsigned long start = millis();
+  unsigned long startTime = millis();
   
-  while (Serial3.available() > 0 && millis() - start < 500) { //changed from (Serial3.available() > 0 && millis() - start < 100)
+  while (Serial3.available() > 0 && millis() - startTime < 500) { //changed from (Serial3.available() > 0 && millis() - start < 100)
   
     if (gps.encode(Serial3.read())) {
       if (saveData == true) {
+        Serial.println("Going to handle GPS data");
         handleGPSData();
         break;  //<-- Added break statement to break after successful read is this in the right place?
+        Serial.println("Went past the break line - fix it!");
       }
       else {
-        logInfo("GPS Read (false)");
+        #ifdef ENABLE_DEBUG
+        Serial.println("GPS Read (false)");
+        #endif
         break;
       }
-    } /*else {
-     logInfo("Didn't encode GPS");
+    } else {
+      #ifdef ENABLE_DEBUG
+      Serial.println("Didn't encode GPS");
+      #endif
     } 
-  */  
+    
   }
-  /*
+  
   if (millis() > 5000 && gps.charsProcessed() < 10) {
-    logInfo("No GPS detected: check wiring.");
+    Serial.println("No GPS detected: check wiring.");
     //while(true);
   }
-  */
+  
     
 }
 
 void handleGPSData()
 {
  //strcpy(gpsBuf," "); //just to initialize the buffer for strcat
- if (gps.location.isUpdated()) { 
-  static char lonBuf[12];
-  if (gps.location.isValid()) {
-    dtostrf(gps.location.lat(), 10, 6, gpsBuf);
-    dtostrf(gps.location.lng(), 10, 6, lonBuf);
-    //sprintf(gpsBuf, "%5.5f", gps.location.lat());
-    //sprintf(lonBuf, "%5.5f", gps.location.lng());
-    strcat(gpsBuf, ",");
-    strcat(gpsBuf, lonBuf);
-    strcat(dataBuff, gpsBuf);
-  } /*else {
-    logInfo("GPS INVALID");
+  if (gps.location.isUpdated()) { 
+    static char latBuf[12];   
+    static char lonBuf[12];
+    if (gps.location.isValid()) {
+    
+      dtostrf(gps.location.lat(), 10, 6, latBuf);
+      dtostrf(gps.location.lng(), 10, 6, lonBuf);
+      //sprintf(gpsBuf, "%5.5f", gps.location.lat());
+      //sprintf(lonBuf, "%5.5f", gps.location.lng());
+      
+      strcat(dataBuff, ",");
+      
+      #ifdef ENABLE_DEBUG
+      Serial.print(millis());
+      #endif
+      
+      strcat(dataBuff, latBuf);
+      strcat(dataBuff, ",");
+      strcat(dataBuff, lonBuf);
+    } else {
+      #ifdef ENABLE_DEBUG
+      Serial.println("GPS INVALID");
+      #endif
   }
-  */
- 
-
+  
+  #ifdef ENABLE_DEBUG
+  Serial.println(dataBuff);
+  #endif
   //delay(5);
   //logGPSData(); 
   //logData(dataBuff);
   //delay(50); //do I need this delay? or is logData a blocking function?
- }/* else {  
+ } else {  
   //logData(dataBuff); 
    strcat(gpsBuf, "Not shit from GPS");  
  }
- */
+ 
   //memset(dataBuff, 0, 72);
   //memset(gpsBuf, 0, 48);  
 
 }
 
+static void feedGPS(unsigned long ms)
+{ //This section could update lat and lon variables whenever something is available, or lat and long can
+  //call this function only when they are ready to be set
+  unsigned long start = millis();
+  do 
+  {
+    while (Serial3.available())
+      gps.encode(Serial3.read());
+  } while (millis() - start < ms); //change this to "if" and have it retire early with break?
+}
+
+void getLocation()
+{
+  if (gps.location.isValid()) {
+    vehicleData.latLocation = gps.location.lat();
+    vehicleData.lonLocation = gps.location.lng();  
+  } else {
+      
+  }
+  feedGPS(0);
+}
 /*
 (gps.location.lat()); // Latitude in degrees (double)
 (gps.location.lng()); // Longitude in degrees (double)

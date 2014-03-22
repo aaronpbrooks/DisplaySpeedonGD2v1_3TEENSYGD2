@@ -10,7 +10,7 @@ bool obdInit() {
     #endif
   }
   //return true should be in above loop
-  if (attemptCount >= 5) return false;
+  if (attemptCount >= 2) return false;
   else return true;
 }
 
@@ -155,17 +155,49 @@ void readPID(int pidIndex)
 
 void vehicleStatus()
 {
+  
+  static char latBuf[12];   
+  static char lonBuf[12];
+  if (gps.location.isValid()) {
+    
+    dtostrf(vehicleData.latLocation, 10, 6, latBuf);
+    dtostrf(vehicleData.lonLocation, 10, 6, lonBuf);
+    //sprintf(gpsBuf, "%5.5f", gps.location.lat());
+    //sprintf(lonBuf, "%5.5f", gps.location.lng());
+        
+    strcat(dataBuff, ",");
+    strcat(dataBuff, latBuf);
+    strcat(dataBuff, ",");
+    strcat(dataBuff, lonBuf);
+        
+    #ifdef ENABLE_DEBUG
+    Serial.print(millis());
+    Serial.print(" ");
+    Serial.println(dataBuff);
+    #endif
+        
+
+  }
+  //
+  //
+  //CHANGE THIS WHOLE THING TO TAKE ALL OF THE STRUCT VARS AND PUT THEM IN AN ARRAY
+  //
+  //
   //Save buffer here?
   logData(dataBuff);
   //delay(50); //do I need this delay? or is logData a blocking function?  
  
   //check to see if obd is active
   //just check for engine running for now, but add obd status check also
-  if (vehicleData.rpmVal > 0) {
-    vehicleData.engineStatus = true;
-    vehicleData.runTime = (millis() / 1000);
+  if(vehicleData.powerStatus == true) {  
+    if (vehicleData.rpmVal > 0) {
+      vehicleData.engineStatus = true;
+      vehicleData.runTime = (millis() / 1000);
+    }
+    else vehicleData.engineStatus = false;
   }
-  else vehicleData.engineStatus = false;
-  
+  memset(dataBuff, 0, 72);
+  memset(gpsBuf, 0, 48);  
+  delay(50);
   
 }

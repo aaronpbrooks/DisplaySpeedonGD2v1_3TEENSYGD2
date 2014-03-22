@@ -130,7 +130,6 @@ void mpgCalc()
       strcat(dataBuff, ",");
       strcat(dataBuff, shortTermMPGBuff);
       strcat(dataBuff, ",");
-      //myData.totalIdleTime = myData.totalIdleTime;
       
       //Reset the time used for calculating averages
       prevReadTimeStamp = movingTimeStamp;

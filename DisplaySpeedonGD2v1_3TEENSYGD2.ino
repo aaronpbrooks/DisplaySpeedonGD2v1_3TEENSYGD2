@@ -28,7 +28,7 @@
 /*************************************************************************
 SETTINGS
 *************************************************************************/
-//#define ENABLE_DEBUG //Serial
+#define ENABLE_DEBUG //Serial
 //#define ENABLE_FUEL  //Serial
 #define ENABLE_GPS
 #define ENABLE_LOG
@@ -58,6 +58,9 @@ struct SEND_DATA_STRUCTURE {
   unsigned long totalMovingTime = 0;
   float totalFuel = 0;
   
+  float latLocation;
+  float lonLocation;
+  
 } vehicleData;
 
 //#endif
@@ -77,7 +80,7 @@ SdFile logFile;
 char tripName[18];
 char logName[18];
 
-char dataBuff[72];  //Update to multiple of 512 for improved speed?
+char dataBuff[72];  //Update to multiple of 128 for improved speed?
 char tempbuf[18];   //Could also make much bigger, add carriage return and line feed
 char gpsBuf[48];    //Could also put in flash instead of RAM - look into this
 //char timeStamp[20];
@@ -201,11 +204,11 @@ int mapVal;
 int iatVal;
 
 void setup() {
-  delay(500);
+  delay(2000);
   #ifdef ENABLE_DEBUG
   Serial.begin(115200);
   #endif  
-  
+
   #ifdef ENABLE_DISPLAY
   GD.begin();
   delay(100);
@@ -234,11 +237,14 @@ void setup() {
   Serial.println(vehicleData.sdStatus);
   #endif
 
+  #ifdef ENABLE_OBD
   vehicleData.powerStatus = obdInit();
-  
-  if (vehicleData.powerStatus = true) logData("OBD Connection Success");
+  if (vehicleData.powerStatus == true) logData("OBD Connection Success");
   
   fuelStartTime = millis() + 3000;
+  #endif
+  
+
   //delay(1000);
     
 }
@@ -247,17 +253,14 @@ void loop() {
   
   if(vehicleData.powerStatus == true) { 
     readOBD();
-    readGPS(false);
-    mpgCalc();
-    vehicleStatus();
-    memset(dataBuff, 0, 72);
-    memset(gpsBuf, 0, 48);  
-    delay(50);
+    feedGPS(0);
+    mpgCalc();      
   }
-  readGPS(true);
-  
-//  logDataBuf();
-  readGPS(false);
+  feedGPS(1000);
+  getLocation();
+  vehicleStatus();
+
+  feedGPS(0);
   
   //handleData();
   //updateScreen();  
